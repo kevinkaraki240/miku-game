@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  name          String
+  passwordHash  String
+  role          String         @default("USER") // USER | ADMIN
+  walletBalance Int            @default(0)
+  points        Int            @default(0)
+  createdAt     DateTime       @default(now())
+  cart          CartItem[]
+  wishlist      WishlistItem[]
+  orders        Order[]
+}
+
+model Game {
+  id            Int            @id @default(autoincrement())
+  slug          String         @unique
+  title         String
+  description   String         @default("")
+  coverUrl      String
+  backgroundUrl String?
+  screenshots   String         @default("[]") // JSON dạng chuỗi
+  trailerUrl    String?
+  genres        String         @default("")   // "Action,RPG"
+  developer     String?
+  releaseDate   DateTime?
+  rating        Float          @default(0)
+  createdAt     DateTime       @default(now())
+  editions      Edition[]
+  wishlisted    WishlistItem[]
+}
+
+model Edition {
+  id              Int         @id @default(autoincrement())
+  gameId          Int
+  platform        String      // STEAM | PS4 | PS5
+  priceVnd        Int
+  discountPercent Int         @default(0)
+  saleEndsAt      DateTime?
+  game            Game        @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  keys            GameKey[]
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+
+  @@unique([gameId, platform])
+}
+
+model GameKey {
+  id          Int        @id @default(autoincrement())
+  editionId   Int
+  code        String     @unique
+  status      String     @default("AVAILABLE") // AVAILABLE | RESERVED | SOLD | REVOKED
+  orderItemId Int?
+  createdAt   DateTime   @default(now())
+  edition     Edition    @relation(fields: [editionId], references: [id], onDelete: Cascade)
+  orderItem   OrderItem? @relation(fields: [orderItemId], references: [id])
+
+  @@index([editionId, status])
+}
+
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  editionId Int
+  quantity  Int     @default(1)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  edition   Edition @relation(fields: [editionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, editionId])
+}
+
+model WishlistItem {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  gameId    Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gameId])
+}
+
+model Coupon {
+  id             Int       @id @default(autoincrement())
+  code           String    @unique
+  percentOff     Int
+  maxDiscountVnd Int?
+  minOrderVnd    Int       @default(0)
+  usageLimit     Int?
+  usedCount      Int       @default(0)
+  expiresAt      DateTime?
+  active         Boolean   @default(true)
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  status      String      @default("PENDING") // PENDING | PAID | FAILED | EXPIRED | REFUNDED
+  subtotalVnd Int
+  discountVnd Int         @default(0)
+  totalVnd    Int
+  couponCode  String?
+  expiresAt   DateTime
+  createdAt   DateTime    @default(now())
+  user        User        @relation(fields: [userId], references: [id])
+  items       OrderItem[]
+  payment     Payment?
+}
+
+model OrderItem {
+  id           Int       @id @default(autoincrement())
+  orderId      Int
+  editionId    Int
+  title        String
+  platform     String
+  unitPriceVnd Int
+  quantity     Int
+  order        Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  edition      Edition   @relation(fields: [editionId], references: [id])
+  keys         GameKey[]
+}
+
+model Payment {
+  id          Int       @id @default(autoincrement())
+  orderId     Int       @unique
+  method      String
+  status      String    @default("INITIATED") // INITIATED | SUCCEEDED | FAILED | EXPIRED | REFUNDED
+  amountVnd   Int
+  providerRef String    @unique
+  createdAt   DateTime  @default(now())
+  paidAt      DateTime?
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}

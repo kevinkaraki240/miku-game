@@ -5,11 +5,32 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "seed": "prisma db seed",
+    "import:rawg": "node --env-file=.env scripts/import-rawg.js",
+    "test": "vitest run",
+    "remove:samples": "node --env-file=.env scripts/remove-samples.js",
+    "make:upcoming": "node --env-file=.env scripts/make-upcoming.js"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "@tailwindcss/postcss": "^4.3.5",
+    "bcryptjs": "^3.0.3",
+    "framer-motion": "^14.14.0",
+    "jose": "^6.2.18",
     "next": "16.4.6",
+    "postcss": "^8.5.33",
+    "prisma": "^6.19.3",
+    "qrcode": "^1.5.4",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "tailwindcss": "^4.3.5",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "vitest": "^5.1.1"
   }
 }

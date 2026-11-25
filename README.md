@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Miku Game
 
-## Getting Started
+Sàn thương mại điện tử game (Steam, PS4, PS5) - dự án học tập cá nhân.
+Mọi giao dịch, giá bán và key game đều là **giả lập**, không có tiền hay key thật.
 
-First, run the development server:
+## Tính năng
+- Trang chủ động: banner, flash sale đếm ngược, thẻ game nghiêng 3D
+- Danh mục: lọc nền tảng/thể loại/giá, tìm kiếm gợi ý, phân trang
+- Chi tiết game, so sánh giá theo nền tảng, thư viện ảnh
+- Đăng ký/đăng nhập (JWT + cookie httpOnly), giỏ hàng, mã giảm giá, yêu thích
+- Thanh toán giả lập: QR, MoMo, ZaloPay, VNPay, thẻ, PayPal, ví nội bộ
+- Giữ key 15 phút, chống bán trùng, giao key tự động, hoàn tiền
+- Trang quản trị: doanh thu, đơn hàng, kho key, giá và flash sale
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Công nghệ
+Next.js, React, Tailwind CSS, Framer Motion, Prisma, SQLite, Zod, Vitest
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Chạy thử
+    npm install
+    cp .env.example .env      # điền JWT_SECRET, WEBHOOK_SECRET, RAWG_API_KEY
+    npx prisma migrate dev
+    npm run seed
+    npm run import:rawg       # tùy chọn
+    npm run dev
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Tài khoản mẫu (chỉ dùng khi phát triển):
+- user@mikugame.local / User@12345
+- admin@mikugame.local / Admin@12345
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Ghi chú
+Dữ liệu game từ [RAWG](https://rawg.io). Tên và nhãn Steam, PlayStation thuộc về chủ sở hữu.
+Dự án không liên kết với Valve, Sony hay Crypton.
