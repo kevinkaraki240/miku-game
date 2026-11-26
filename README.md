@@ -29,3 +29,5 @@ Tài khoản mẫu (chỉ dùng khi phát triển):
 ## Ghi chú
 Dữ liệu game từ [RAWG](https://rawg.io). Tên và nhãn Steam, PlayStation thuộc về chủ sở hữu.
 Dự án không liên kết với Valve, Sony hay Crypton.
+
+https://miku-game-seven.vercel.app/
