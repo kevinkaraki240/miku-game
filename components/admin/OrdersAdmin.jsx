@@ -5,6 +5,7 @@ import { formatVnd } from '@/lib/format';
 
 const STATUS = {
   PENDING: { label: 'Chờ thanh toán', cls: 'bg-amber-500/20 text-amber-300' },
+  AWAITING_CONFIRM: { label: 'Chờ duyệt', cls: 'bg-amber-500/20 text-amber-300' },
   PAID: { label: 'Đã thanh toán', cls: 'bg-miku/20 text-miku' },
   FAILED: { label: 'Thất bại', cls: 'bg-pink/20 text-pink' },
   EXPIRED: { label: 'Hết hạn', cls: 'bg-panel text-muted' },
@@ -48,6 +49,27 @@ export default function OrdersAdmin() {
       const res = await fetch(`/api/admin/orders/${order.id}/refund`, { method: 'POST' });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(d.error ?? 'Hoàn tiền thất bại');
+      await load();
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  // Duyệt hoặc từ chối đơn chuyển khoản
+  async function review(order, action) {
+    const text =
+      action === 'approve'
+        ? `Xác nhận đã nhận ${formatVnd(order.totalVnd)} từ ${order.user.email}? Key sẽ được giao cho khách.`
+        : `Từ chối đơn #${order.id}? Key sẽ được trả về kho.`;
+    if (!window.confirm(text)) return;
+    setBusyId(order.id);
+    setError('');
+    try {
+      const res = await fetch(`/api/admin/orders/${order.id}/${action}`, { method: 'POST' });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.error ?? 'Thao tác thất bại');
       await load();
     } catch (e) {
       setError(e.message);
@@ -133,6 +155,24 @@ export default function OrdersAdmin() {
                         <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${st.cls}`}>{st.label}</span>
                       </td>
                       <td className="px-4 py-3 text-right">
+                        {o.status === 'AWAITING_CONFIRM' && (
+                          <div className="flex justify-end gap-2">
+                            <button
+                              disabled={busyId === o.id}
+                              onClick={() => review(o, 'approve')}
+                              className="rounded-full bg-miku px-3 py-1 text-xs font-bold text-bg hover:brightness-110 disabled:opacity-40"
+                            >
+                              Duyệt
+                            </button>
+                            <button
+                              disabled={busyId === o.id}
+                              onClick={() => review(o, 'reject')}
+                              className="rounded-full border border-pink/60 px-3 py-1 text-xs font-bold text-pink hover:bg-pink/10 disabled:opacity-40"
+                            >
+                              Từ chối
+                            </button>
+                          </div>
+                        )}
                         {o.status === 'PAID' && (
                           <button
                             disabled={busyId === o.id}

@@ -10,12 +10,16 @@
     "import:rawg": "node --env-file=.env scripts/import-rawg.js",
     "test": "vitest run",
     "remove:samples": "node --env-file=.env scripts/remove-samples.js",
+    "postinstall": "prisma generate",
+    "create:admin": "node --env-file=.env scripts/create-admin.js",
     "make:upcoming": "node --env-file=.env scripts/make-upcoming.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
   },
   "dependencies": {
+    "@neon/config": "^1.14.7",
+    "@neon/env": "^2.1.10",
     "@prisma/client": "^6.19.3",
     "@tailwindcss/postcss": "^4.3.5",
     "bcryptjs": "^3.0.3",

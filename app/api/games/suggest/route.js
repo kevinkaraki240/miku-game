@@ -5,7 +5,7 @@ export const GET = handle(async (request) => {
   const q = (request.nextUrl.searchParams.get('q') ?? '').trim();
   if (q.length < 2) return ok([]);
   const items = await prisma.game.findMany({
-    where: { title: { contains: q } },
+    where: { title: { contains: q, mode: 'insensitive' } },
     take: 6,
     select: { slug: true, title: true, coverUrl: true },
   });

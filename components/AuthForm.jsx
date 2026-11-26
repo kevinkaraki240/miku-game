@@ -105,16 +105,6 @@ export default function AuthForm({ mode }) {
             {isLogin ? 'Đăng ký' : 'Đăng nhập'}
           </Link>
         </p>
-
-        {isLogin && (
-          <button
-            type="button"
-            onClick={() => setForm((f) => ({ ...f, email: 'user@mikugame.local', password: 'User@12345' }))}
-            className="mt-4 w-full rounded-xl border border-dashed border-line py-2 text-xs text-muted transition hover:border-miku hover:text-miku"
-          >
-            Điền tài khoản thử (có sẵn 5.000.000đ trong ví)
-          </button>
-        )}
       </div>
     </div>
   );

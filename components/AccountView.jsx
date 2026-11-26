@@ -7,6 +7,7 @@ import { formatVnd, formatDate } from '@/lib/format';
 
 const STATUS = {
   PENDING: { label: 'Chờ thanh toán', cls: 'bg-amber-500/20 text-amber-300' },
+  AWAITING_CONFIRM: { label: 'Chờ admin duyệt', cls: 'bg-amber-500/20 text-amber-300' },
   PAID: { label: 'Đã thanh toán', cls: 'bg-miku/20 text-miku' },
   FAILED: { label: 'Thất bại', cls: 'bg-pink/20 text-pink' },
   EXPIRED: { label: 'Hết hạn', cls: 'bg-panel text-muted' },
@@ -142,9 +143,9 @@ export default function AccountView() {
                 </ul>
                 <div className="mt-3 flex items-center justify-between">
                   <span className="font-extrabold text-miku">{formatVnd(o.totalVnd)}</span>
-                  {o.status === 'PENDING' && (
+                  {(o.status === 'PENDING' || o.status === 'AWAITING_CONFIRM') && (
                     <Link href={`/checkout/${o.id}`} className="rounded-full bg-miku px-4 py-1.5 text-sm font-bold text-bg hover:brightness-110">
-                      Thanh toán
+                      {o.status === 'PENDING' ? 'Thanh toán' : 'Xem trạng thái'}
                     </Link>
                   )}
                 </div>

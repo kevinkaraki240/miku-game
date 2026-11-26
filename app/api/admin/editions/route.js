@@ -12,8 +12,7 @@ const schema = z.object({
 export const GET = handle(async (request) => {
   await requireAdmin(request);
   const p = schema.parse(Object.fromEntries(request.nextUrl.searchParams));
-  const where = p.q ? { game: { title: { contains: p.q } } } : {};
-
+  const where = p.q ? { game: { title: { contains: p.q, mode: 'insensitive' } } } : {};
   const [total, rows] = await Promise.all([
     prisma.edition.count({ where }),
     prisma.edition.findMany({

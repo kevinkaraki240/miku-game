@@ -24,8 +24,7 @@ Next.js, React, Tailwind CSS, Framer Motion, Prisma, SQLite, Zod, Vitest
     npm run dev
 
 Tài khoản mẫu (chỉ dùng khi phát triển):
-- user@mikugame.local / User@12345
-- admin@mikugame.local / Admin@12345
+- admin@miku.com / admin1234567
 
 ## Ghi chú
 Dữ liệu game từ [RAWG](https://rawg.io). Tên và nhãn Steam, PlayStation thuộc về chủ sở hữu.

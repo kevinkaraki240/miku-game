@@ -7,6 +7,7 @@ import { formatVnd } from '@/lib/format';
 
 const STATUS_LABEL = {
   PENDING: 'Chờ thanh toán',
+  AWAITING_CONFIRM: 'Chờ admin duyệt',
   PAID: 'Đã thanh toán',
   FAILED: 'Thất bại',
   EXPIRED: 'Hết hạn',
@@ -41,6 +42,7 @@ export default function Dashboard() {
 
   const count = (st) => s.orders.find((o) => o.status === st)?.count ?? 0;
   const paid = s.orders.find((o) => o.status === 'PAID');
+  const awaiting = count('AWAITING_CONFIRM');
 
   // 14 ngày gần nhất, tính theo giờ UTC để khớp với cách server nhóm doanh thu
   const days = Array.from({ length: 14 }, (_, i) => {
@@ -52,6 +54,15 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {awaiting > 0 && (
+        <Link
+          href="/admin/orders"
+          className="block rounded-2xl border border-amber-400/50 bg-amber-500/10 px-5 py-3 font-bold text-amber-300 transition hover:bg-amber-500/20"
+        >
+          Có {awaiting} đơn chuyển khoản đang chờ bạn duyệt →
+        </Link>
+      )}
+
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Stat label="Tổng doanh thu" value={formatVnd(paid?.totalVnd ?? 0)} />
         <Stat label="Đơn đã thanh toán" value={count('PAID')} />

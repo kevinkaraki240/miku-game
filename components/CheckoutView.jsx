@@ -8,7 +8,7 @@ import OrderTimer from './OrderTimer';
 import { formatVnd } from '@/lib/format';
 
 const METHOD_UI = {
-  QR_BANK: { icon: '🏦', hint: 'Quét mã QR bằng ứng dụng ngân hàng' },
+  QR_BANK: { icon: '🏦', hint: 'Quét mã QR, admin sẽ duyệt sau khi nhận tiền' },
   MOMO: { icon: '💗', hint: 'Chuyển sang trang MoMo giả lập' },
   ZALOPAY: { icon: '🔷', hint: 'Chuyển sang trang ZaloPay giả lập' },
   VNPAY: { icon: '🏧', hint: 'Chuyển sang trang VNPay giả lập' },
@@ -59,6 +59,13 @@ export default function CheckoutView({ orderId }) {
       .catch(() => {});
   }, [load, loadMe]);
 
+  // Đang chờ admin duyệt: tự tải lại đơn mỗi 5 giây để hiện key ngay khi được duyệt
+  useEffect(() => {
+    if (order?.status !== 'AWAITING_CONFIRM') return;
+    const id = setInterval(load, 5000);
+    return () => clearInterval(id);
+  }, [order?.status, load]);
+
   async function pay() {
     setBusy(true);
     setError('');
@@ -82,14 +89,15 @@ export default function CheckoutView({ orderId }) {
     }
   }
 
+  // Khách báo đã chuyển khoản -> đơn chờ admin duyệt
   async function confirmQr() {
     setBusy(true);
     setError('');
     try {
-      const res = await fetch('/api/payments/mock/confirm', {
+      const res = await fetch('/api/payments/transfer/claim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ providerRef: qr.providerRef, result: 'SUCCESS' }),
+        body: JSON.stringify({ orderId }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error ?? 'Có lỗi xảy ra');
@@ -148,6 +156,24 @@ export default function CheckoutView({ orderId }) {
     );
   }
 
+  if (order.status === 'AWAITING_CONFIRM') {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-20 text-center">
+        <p className="text-5xl">⏳</p>
+        <h1 className="mt-3 text-2xl font-extrabold">Đang chờ xác nhận chuyển khoản</h1>
+        <p className="mt-2 text-sm text-muted">
+          Đơn #{order.id} · {formatVnd(order.totalVnd)}. Quản trị viên sẽ kiểm tra khoản chuyển và duyệt đơn.
+          Trang này tự cập nhật, key sẽ hiện ngay khi đơn được duyệt.
+        </p>
+        <p className="mt-1 text-xs text-muted">Key của bạn đang được giữ, không bị hết hạn trong lúc chờ.</p>
+        <div className="mt-6 flex justify-center gap-3">
+          <Link href="/account" className="rounded-full border border-line px-6 py-2.5 font-bold text-muted hover:border-miku hover:text-miku">Đơn hàng của tôi</Link>
+          <Link href="/games" className="rounded-full bg-miku px-6 py-2.5 font-bold text-bg hover:brightness-110">Xem thêm game</Link>
+        </div>
+      </div>
+    );
+  }
+
   if (order.status !== 'PENDING') {
     const info = {
       FAILED: ['Thanh toán thất bại', 'Key đã được trả về kho. Bạn chưa bị trừ tiền.'],
@@ -188,10 +214,12 @@ export default function CheckoutView({ orderId }) {
                 <div className="flex justify-between"><dt className="text-muted">Số tiền</dt><dd className="font-bold text-miku">{formatVnd(qr.amountVnd)}</dd></div>
                 <div className="flex justify-between"><dt className="text-muted">Nội dung</dt><dd className="font-bold">{qr.transferNote}</dd></div>
               </dl>
-              <p className="mt-3 text-xs text-muted">Đây là QR giả lập, không chuyển tiền thật.</p>
+              <p className="mt-3 text-xs text-muted">
+                QR giả lập, không chuyển tiền thật. Sau khi bấm "Tôi đã chuyển khoản", quản trị viên sẽ kiểm tra và duyệt đơn.
+              </p>
               <div className="mt-5 flex flex-wrap justify-center gap-3">
                 <button disabled={busy} onClick={confirmQr} className="rounded-full bg-miku px-6 py-2.5 font-bold text-bg hover:brightness-110 disabled:opacity-50">
-                  Giả lập: đã nhận tiền
+                  {busy ? 'Đang gửi...' : 'Tôi đã chuyển khoản'}
                 </button>
                 <button onClick={() => setQr(null)} className="rounded-full border border-line px-6 py-2.5 font-bold text-muted hover:border-pink hover:text-pink">
                   Đổi phương thức
